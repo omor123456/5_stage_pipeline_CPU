@@ -1,0 +1,26 @@
+// Test of B.LT instruction.
+// Requires: B.LT, SUBS, ADDI & B instructions
+// Expected results:
+// X0 =  1
+// X1 =  1
+
+               // MAIN:
+1001000100_000000000001_11111_00000    // ADDI X0, X31, #1     // X0 = 1, comparison target.
+1001000100_000000000000_11111_00001    // ADDI X1, X31, #0     // X1 = 0, only set to 1 if we get it all right.
+11101011000_00000_000000_00000_11111   // SUBS X31, X0, X0     // 1-1, not less than.
+01010100_0000000000000001000_01011     // B.LT ERROR           // Don't take (+8)
+1001000100_000000000000_11111_11111    // ADDI X31, X31, #0    // NOOP
+11101011000_11111_000000_00000_11111   // SUBS X31, X0, X31    // 1 - 0, not less than.
+01010100_0000000000000000101_01011     // B.LT ERROR           // Don't take (+5)
+1001000100_000000000000_11111_11111    // ADDI X31, X31, #0    // NOOP
+11101011000_00000_000000_11111_11111   // SUBS X31, X31, X0    // 0 - 1, is less than.
+01010100_0000000000000000100_01011     // B.LT SUCCESS         // Take this. (+4)
+1001000100_000000000000_11111_11111    // ADDI X31, X31, #0    // NOOP
+               // ERROR:
+000101_00000000000000000000000000      // B ERROR              // Should never get here (0)
+1001000100_000000000000_11111_11111    // ADDI X31, X31, #0    // NOOP
+               // SUCCESS:
+1001000100_000000000001_00001_00001    // ADDI X1, X1, #1      // Signal correct operation.
+               // HALT:
+000101_00000000000000000000000000      // B HALT               // Loop forever (0).
+1001000100_000000000000_11111_11111    // ADDI X31, X31, #0    // NOOP
